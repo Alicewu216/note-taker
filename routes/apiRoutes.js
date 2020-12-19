@@ -1,33 +1,38 @@
-let store = require("../db/store");
+// LOAD DATA
+const path = require("path");
+const fs = require("fs");
+const uuid = require("uuid");
 
-//Export to server.js
-module.exports = function(app) {
-    //For GET requests, will display current saved notes data
-    app.get("/api/notes", function(req, res) {
-        return res.json(store.savedNotes);
-    });
+const noteFile = path.join(__dirname, "../db/db.json");
 
-    //for POST requests, will add the note to the savedNotes array, update the db.json file, and the current saved notes will be displayed
-    app.post("/api/notes", function(req,res) {
-        req.body.id = (store.savedNotes.length + 1).toString();
-        store.savedNotes.push(req.body);
-        store.updateJsonFile(store.savedNotes);
-        return res.json(store.savedNotes);
-    })
+// ROUTING
 
-    //for DELETE requests, will remove the note being deleted based on the id of the note using the .filter method; the db.json will be updated, and the current notes will be displayed
-    app.delete("/api/notes/:id", function(req, res) {
-        var chosen = req.params.id;
-      
-        for (var i = 0; i < store.savedNotes.length; i++) {
-            
-          if (chosen === store.savedNotes[i].id) {
-            store.savedNotes = store.savedNotes.filter(({ id }) => id !== req.params.id);
-            store.updateJsonFile(store.savedNotes);
-            return res.json(store.savedNotes);
-          }
-        }
-      
-        return res.json(false);
-    });
+module.exports = function (app) {
+  // get note data from db.json
+  app.get("/api/notes", function (req, res) {
+    const noteData = JSON.parse(fs.readFileSync(noteFile, "utf-8"));
+    res.json(noteData);
+  });
+
+  // save note data to db.json
+  app.post("/api/notes", function (req, res) {
+    const noteData = JSON.parse(fs.readFileSync(noteFile, "utf-8"));
+    let newNote = req.body;
+    // use uuid to generate a unique id
+    newNote.id = uuid.v4();
+    noteData.push(newNote);
+    // update db.json with the added object
+    fs.writeFileSync(noteFile, JSON.stringify(noteData), "utf-8");
+    res.json(true);
+  });
+
+  // delete an object from db.json by unique id
+  app.delete("/api/notes/:id", function (req, res) {
+    const noteData = JSON.parse(fs.readFileSync(noteFile, "utf-8"));
+    // filter out the targeted object
+    const filteredNotes = noteData.filter((note) => note.id != req.params.id);
+    // update db.json with the updated array that excludes the deleted note
+    fs.writeFileSync(noteFile, JSON.stringify(filteredNotes), "utf-8");
+    res.json(true);
+  });
 };

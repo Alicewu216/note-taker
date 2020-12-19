@@ -1,14 +1,17 @@
-const path = require('path');
 
-//HTML file routes
-module.exports = function(app) {
-    //Home page route
-    app.get("/", (req,res) => {
-        res.sendFile(path.join(__dirname, "../public/index.html"));
-    });
+// DEPENDENCIES
+const path = require("path");
 
-    //Notes page route
-    app.get("/notes", (req,res) => {
-        res.sendFile(path.join(__dirname, "../public/notes.html"));
-    });
+// ROUTING
+module.exports = function (app) {
+    //HTML GET request, handles when user "visit" a page
+  // display notes.html if user url is ending with /notes
+  app.get("/notes", function (req, res) {
+    res.sendFile(path.join(__dirname, "../public/notes.html"));
+  });
+
+  // if no maching route is found default to home
+  app.get("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+  });
 };

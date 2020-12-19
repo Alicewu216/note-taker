@@ -1,21 +1,20 @@
+//dependencies
+var express = require("express");
+var path = require("path");
 
-const express = require("express");
-
-
-const app = express();
-
-//set up a PORt to listen to
+//set up express app
+var app = express();
 const PORT = process.env.PORT || 3000;
 
-//add some body parswers
-
+//set up express app to handle data parsing
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-//serve up public folder to client side
-app.use(express.static("public"));
+
+//points server to a series of routes file
+app.use(express.static(path.join(__dirname,"public")));
 require("./routes/apiRoutes")(app);
 require("./routes/htmlRoutes")(app);
-
-app.listen(PORT, () => {
-    console.log("Listening on PORT: " + PORT + ".....");
-})
+//starts server to begin listening
+app.listen(PORT, function() {
+    console.log("Listening on PORT: " + PORT);
+});
