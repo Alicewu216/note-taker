@@ -1,8 +1,7 @@
-// LOAD DATA
+
 const path = require("path");
 const fs = require("fs");
 const uuid = require("uuid");
-
 const noteFile = require("../db/db.json");
 
 
